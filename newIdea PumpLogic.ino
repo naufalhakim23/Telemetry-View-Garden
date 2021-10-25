@@ -122,28 +122,7 @@ void loop()
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
 
-  //CapacitiveSense Test
-  float sensorValue = analogRead(SensorPin);
-  float percentageHumidity = map(sensorValue, wet, dry, 100, 0);
-  Serial.print("Moisture : ");
-  Serial.print(percentageHumidity);
-  Serial.println("%");
-
-
-  //Pump Logic
-  if (percentageHumidity <= 30)
-    { digitalWrite(relay, HIGH);
-    Serial.println("pump on");
-    delay(10*1000); // on for 10 seconds
-    digitalWrite(relay, LOW);
-    Serial.println("pump off after on");
-    delay(2000);
-    } 
-  else if (percentageHumidity >=65){
-    digitalWrite(relay, LOW);
-    Serial.println("pump off because humid noice");
-    delay(2000);
-    }
+  
 
   
   //MQ-135 Here
@@ -162,13 +141,52 @@ void loop()
   
 
   
-  if (Firebase.ready() && (millis() - sendDataPrevMillis > 1000 || sendDataPrevMillis == 0))
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
 
     //To set and push data with timestamp, requires the JSON data with .sv placeholder
     FirebaseJson json;
+    //CapacitiveSense Test
+    float sensorValue = analogRead(SensorPin);
+    float percentageHumidity = map(sensorValue, wet, dry, 100, 0);
+    Serial.print("Moisture : ");
+    Serial.print(percentageHumidity);
+    Serial.println("%");
 
+
+    //Pump Logic
+    if (percentageHumidity <= 30)
+      { digitalWrite(relay, HIGH);
+      Serial.println("pump on");
+      json.set("pumpStatus/", "ON");
+        //Set data with timestamp
+        Serial.printf("Set data with timestamp... %s\n", Firebase.RTDB.setJSON(&fbdo, "/realtime/set", &json) ? fbdo.to<FirebaseJson>().raw() : fbdo.errorReason().c_str());
+
+        //Push data with timestamp
+        Serial.printf("Push data with timestamp... %s\n", Firebase.RTDB.pushJSON(&fbdo, "/realtime/push", &json) ? "ok" : fbdo.errorReason().c_str());
+      delay(10*1000); // on for 10 seconds
+      digitalWrite(relay, LOW);
+      Serial.println("pump off after on");
+      json.set("pumpStatus/", "OFF");
+        //Set data with timestamp
+        Serial.printf("Set data with timestamp... %s\n", Firebase.RTDB.setJSON(&fbdo, "/realtime/set", &json) ? fbdo.to<FirebaseJson>().raw() : fbdo.errorReason().c_str());
+
+        //Push data with timestamp
+        Serial.printf("Push data with timestamp... %s\n", Firebase.RTDB.pushJSON(&fbdo, "/realtime/push", &json) ? "ok" : fbdo.errorReason().c_str());
+        delay(2000);
+      } 
+    else if (percentageHumidity >=65){
+      digitalWrite(relay, LOW);
+      Serial.println("OFF");
+      json.set("pumpStatus/", "OFF");
+        //Set data with timestamp
+        Serial.printf("Set data with timestamp... %s\n", Firebase.RTDB.setJSON(&fbdo, "/realtime/set", &json) ? fbdo.to<FirebaseJson>().raw() : fbdo.errorReason().c_str());
+
+        //Push data with timestamp
+        Serial.printf("Push data with timestamp... %s\n", Firebase.RTDB.pushJSON(&fbdo, "/realtime/push", &json) ? "ok" : fbdo.errorReason().c_str());
+      delay(2000);
+      }
     //now we will set the timestamp value at Ts
     json.set("Ts/.sv", "timestamp"); // .sv is the required place holder for sever value which currently supports only string "timestamp" as a value
     json.set("soilTemp/",temperatureSoil);
