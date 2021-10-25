@@ -15,12 +15,14 @@
 #define DHTTYPE DHT22
 #define PIN_MQ135 34
 #define oneWireBus 18
-// int LDR = 32;
+int LDR = 32;
 int SensorPin = 35;
 int relay = 2;
 
-const int dry = 4095;
-const int wet = 1601;
+const int dry = 3854;
+const int wet = 1480;
+int ldrValue = 0;
+int sensorValue =0;
 
 MQ135 mq135_sensor(PIN_MQ135);
 DHT dht(DHTPIN, DHTTYPE);
@@ -74,7 +76,7 @@ void setup()
   sensors.begin();
   pinMode(relay, OUTPUT);
   pinMode(SensorPin, INPUT);
-  // pinMode(LDR, INPUT);
+  pinMode(LDR, INPUT);
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
@@ -121,11 +123,6 @@ void loop()
   //Flash string (PROGMEM and  (FPSTR), String, String C/C++ string, const char, char array, string literal are supported
   //in all Firebase and FirebaseJson functions, unless F() macro is not supported.
   //Sensors
-  
-
-  //LDR Here
-//  float ldr = analogRead(relay);
-  
 
   
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0))
@@ -145,6 +142,10 @@ void loop()
     sensors.requestTemperatures(); 
     float temperatureSoil = sensors.getTempCByIndex(0);
 
+    //LDR Sensing
+    ldrValue = analogRead(LDR);
+    Serial.println(ldrValue);
+
     //To set and push data with timestamp, requires the JSON data with .sv placeholder
     FirebaseJson json;
     //CapacitiveSense Test
@@ -159,6 +160,7 @@ void loop()
     if (percentageHumidity <= 38)
       { digitalWrite(relay, HIGH);
         Serial.println("pump on");
+        json.set("lightStats/", ldrValue);
         json.set("pumpStatus/", 1);
         json.set("Ts/.sv", "timestamp"); // .sv is the required place holder for sever value which currently supports only string "timestamp" as a value
         json.set("soilTemp/",temperatureSoil);
@@ -173,13 +175,14 @@ void loop()
 
         //Push data with timestamp
         Serial.printf("Push data with timestamp... %s\n", Firebase.RTDB.pushJSON(&fbdo, "/realtime/push", &json) ? "ok" : fbdo.errorReason().c_str());
-      delay(1*1000); // on for 10 seconds
+      delay(2*1000); // on for 1 seconds
       digitalWrite(relay, LOW);
       } 
     else if (percentageHumidity >=39){
       digitalWrite(relay, LOW);
       Serial.println("OFF");
         json.set("pumpStatus/", 0);
+        json.set("lightStats/", ldrValue);
         json.set("Ts/.sv", "timestamp"); // .sv is the required place holder for sever value which currently supports only string "timestamp" as a value
         json.set("soilTemp/",temperatureSoil);
         json.set("soilHum/", percentageHumidity);
@@ -198,5 +201,5 @@ void loop()
     
     count++;
   }
-  delay(14000);
+  delay(29000);
 }
