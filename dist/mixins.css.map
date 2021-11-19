@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../Telemetry-Website/assets/scss/soft-ui-dashboard/mixins/mixins.scss",
+        "../Telemetry-Website/assets/scss/soft-ui-dashboard/mixins/_hover.scss"
+    ],
+    "names": [],
+    "file": "mixins.css"
+}

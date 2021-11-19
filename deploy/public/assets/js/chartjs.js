@@ -379,23 +379,119 @@ var soilHumChartInstance = new Chart(document.getElementById("chart-soilHum").ge
 
 
 
-var co2PpmChartInstance= new Chart(document.getElementById("chart-co2ppm").getContext("2d"), {
+// var co2PpmChartInstance= new Chart(document.getElementById("chart-co2ppm").getContext("2d"), {
+//     type: "line",
+//     data: {
+//     labels: [],
+//     datasets: [
+//         {
+//         label: "PPM",
+//         tension: 0.4,
+//         borderWidth: 0,
+//         pointRadius: 0,
+//         borderColor: "#3A416F",
+//         backgroundColor: gradientStroke2,
+//         data: [],
+//         maxBarThickness: 6
+
+//         },
+//     ],
+//     },
+//     options: {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     legend: {
+//         display: false,
+//     },
+//     tooltips: {
+//         enabled: true,
+//         mode: "index",
+//         intersect: false,
+//     },
+//     scales: {
+//         yAxes: [{
+//         gridLines: {
+//             borderDash: [2],
+//             borderDashOffset: [2],
+//             color: '#dee2e6',
+//             zeroLineColor: '#dee2e6',
+//             zeroLineWidth: 1,
+//             zeroLineBorderDash: [2],
+//             drawBorder: false,
+//         },
+//         ticks: {
+//             padding: 10,
+//             fontSize: 11,
+//             fontColor: '#adb5bd',
+//             lineHeight: 3,
+//             fontStyle: 'normal',
+//             fontFamily: "Open Sans",
+//         },
+//         }, ],
+//         xAxes: [{
+//         gridLines: {
+//             zeroLineColor: 'rgba(0,0,0,0)',
+//             display: false,
+//         },
+//         ticks: {
+//             padding: 10,
+//             fontSize: 11,
+//             fontColor: '#adb5bd',
+//             lineHeight: 3,
+//             fontStyle: 'normal',
+//             fontFamily: "Open Sans",
+//         },
+//         }, ],
+//     },
+//     },
+// });
+//     //RTDB
+//     var valueCo2Ppm = firebase.database().ref(databasepush);
+//     valueCo2Ppm.on('child_added', function (snapshot) {
+//         var co2ppm = snapshot.val().co2ppmCorrected;
+//         function addZero(i) {
+//             if (i < 10) {i = "0" + i}
+//             return i;
+//           }
+//         var timestamp = snapshot.val().Ts;
+//         var convertts = new Date(timestamp);
+//         var ampm = convertts.getHours() >= 12 ? 'PM' : 'AM';
+//         var time = addZero(convertts.getHours())+":"+addZero(convertts.getMinutes())+":"+addZero(convertts.getSeconds())+" " + ampm;
+//         addDataCo2Ppm(co2PpmChartInstance, time, co2ppm);
+//     });
+//     function addDataCo2Ppm(chart,label, data) {
+//         if(data){
+//             chart.data.labels.push(label);
+//             chart.data.datasets.forEach((dataset) => {dataset.data.push(data);
+//                 if(updateCount > numberElements){
+//                     chart.data.labels.shift();
+//                     chart.data.datasets[0].data.shift();
+//                 }
+//                 else updateCount++;
+//                 chart.update();
+//             });
+//         }
+//     };
+
+
+var ldrChartInstance = new Chart(document.getElementById("chart-LDR").getContext("2d"), {
     type: "line",
     data: {
-    labels: [],
-    datasets: [
-        {
-        label: "PPM",
-        tension: 0.4,
-        borderWidth: 0,
-        pointRadius: 0,
-        borderColor: "#3A416F",
-        backgroundColor: gradientStroke2,
-        data: [],
-        maxBarThickness: 6
+        labels: [],
+        datasets: [{
+            label: "LDR Output",
+            tension: 0.4,
+            borderWidth: 0,
+            pointRadius: 0,
+            borderColor: "#cb0c9f",
+            backgroundColor: gradientStroke1,
+            data: [],
+            maxBarThickness: 6,
+            fill : false
 
-        },
-    ],
+            },
+            
+        ],
     },
     options: {
     responsive: true,
@@ -445,21 +541,22 @@ var co2PpmChartInstance= new Chart(document.getElementById("chart-co2ppm").getCo
     },
     },
 });
-    //RTDB
-    var valueCo2Ppm = firebase.database().ref(databasepush);
-    valueCo2Ppm.on('child_added', function (snapshot) {
-        var co2ppm = snapshot.val().co2ppmCorrected;
+    //Graph Realtime Variable Implementation
+    var ldrRef = firebase.database().ref(databasepush);
+    valueRef.on('child_added', function (snapshot) {
+        var lightPoint = snapshot.val().lightStats;
         function addZero(i) {
             if (i < 10) {i = "0" + i}
             return i;
-          }
+            }
         var timestamp = snapshot.val().Ts;
         var convertts = new Date(timestamp);
         var ampm = convertts.getHours() >= 12 ? 'PM' : 'AM';
         var time = addZero(convertts.getHours())+":"+addZero(convertts.getMinutes())+":"+addZero(convertts.getSeconds())+" " + ampm;
-        addDataCo2Ppm(co2PpmChartInstance, time, co2ppm);
+        addLdrData(ldrChartInstance,time, lightPoint);
     });
-    function addDataCo2Ppm(chart,label, data) {
+
+    function addLdrData(chart,label, data) {
         if(data){
             chart.data.labels.push(label);
             chart.data.datasets.forEach((dataset) => {dataset.data.push(data);
@@ -471,7 +568,7 @@ var co2PpmChartInstance= new Chart(document.getElementById("chart-co2ppm").getCo
                 chart.update();
             });
         }
-    };
+    }
     
 var ctx3 ;
 

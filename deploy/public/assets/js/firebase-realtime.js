@@ -10,7 +10,6 @@ var dataRealTimeTimeStampPath = 'realtime/set/TS';
 var dataRealTimeCounterPath = 'realtime/set/z_counter';
 var dataRealTimeWaterPumpStatusPath = 'realtime/set/pumpStatus';
 var dataRealTimeLightSensPath = 'realtime/set/lightStats';
-console.log(dataRealTimeHumidityPath);
 // Get a database reference 
 const dataRealTimeHumidity = database.ref(dataRealTimeHumidityPath);
 const dataRealTimeTemperature = database.ref(dataRealTimeTemperaturePath);
@@ -54,12 +53,12 @@ dataRealTimeSoilTemp.on('value', (snapshot) => {
   }, (errorObject) => {
     console.log('The read failed: ' + errorObject.name);
 });
-dataRealTimeCo2ppm.on('value', (snapshot) => {
-    dataRealTimeCo2ppmReading = snapshot.val();
-    document.getElementById("reading-co2ppm").innerHTML = dataRealTimeCo2ppmReading;
-  }, (errorObject) => {
-    console.log('The read failed: ' + errorObject.name);
-});
+// dataRealTimeCo2ppm.on('value', (snapshot) => {
+//     dataRealTimeCo2ppmReading = snapshot.val();
+//     document.getElementById("reading-co2ppm").innerHTML = dataRealTimeCo2ppmReading;
+//   }, (errorObject) => {
+//     console.log('The read failed: ' + errorObject.name);
+// });
 dataRealTimeSoilHum.on('value', (snapshot) => {
     dataRealTimeSoilHumReading = snapshot.val();
     document.getElementById("soil-hum").innerHTML = dataRealTimeSoilHumReading;
